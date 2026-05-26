@@ -29,19 +29,19 @@ This solution uses a lightweight hexagonal-style structure to separate:
 - `controller` for HTTP endpoints
 - `service` for business orchestration
 - `domain` for validation and request rules
-- `ports` for external contracts (payment repository, bank client)
+- `ports` for external contracts (paymentResponse repository, bank client)
 - `adapters` for the in-memory repository and bank simulator HTTP client
 
-Payment requests are validated before calling the bank simulator. Valid requests are persisted in the provided in-memory repository, and retrieval is supported by payment ID.
+Payment requests are validated before calling the bank simulator. Valid requests are persisted in the provided in-memory repository, and retrieval is supported by paymentResponse ID.
 
 ## Supported Endpoints
-- `POST /payment`
-  - Accepts a payment request with `card_number`, `expiry_month`, `expiry_year`, `currency`, `amount`, and `cvv`
-  - Returns `201 Created` with payment details including `id`, `status`, `cardNumberLastFour`, `expiryMonth`, `expiryYear`, `currency`, and `amount`
+- `POST /paymentResponse`
+  - Accepts a paymentResponse request with `card_number`, `expiry_month`, `expiry_year`, `currency`, `amount`, and `cvv`
+  - Returns `201 Created` with paymentResponse details including `id`, `status`, `cardNumberLastFour`, `expiryMonth`, `expiryYear`, `currency`, and `amount`
   - Returns `400 Bad Request` for validation failure
   - Returns `503 Service Unavailable` if the bank simulator is unreachable or returns server errors
-- `GET /payment/{id}`
-  - Returns `200 OK` with stored payment details
+- `GET /paymentResponse/{id}`
+  - Returns `200 OK` with stored paymentResponse details
   - Returns `404 Not Found` with `{"message":"Page not found"}` for missing payments
 
 ## How to run

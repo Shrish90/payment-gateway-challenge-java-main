@@ -1,7 +1,6 @@
 package com.checkout.payment.gateway.adapters.bank;
 
-import com.checkout.payment.gateway.adapters.bank.BankPaymentRequest;
-import com.checkout.payment.gateway.model.PostPaymentRequest;
+import com.checkout.payment.gateway.model.PaymentRequest;
 import com.checkout.payment.gateway.ports.BankClient;
 import com.checkout.payment.gateway.exception.BankUnavailableException;
 import org.slf4j.Logger;
@@ -24,7 +23,7 @@ public class HttpBankClient implements BankClient {
   private static final int MAX_RETRIES = 2;
 
   @Override
-  public BankResponse sendPayment(PostPaymentRequest request) {
+  public BankResponse sendPayment(PaymentRequest request) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     BankPaymentRequest bankRequest = new BankPaymentRequest(

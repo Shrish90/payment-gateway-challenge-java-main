@@ -5,16 +5,15 @@ import static org.mockito.Mockito.when;
 
 import com.checkout.payment.gateway.adapters.bank.BankResponse;
 import com.checkout.payment.gateway.enums.PaymentStatus;
-import com.checkout.payment.gateway.model.PostPaymentRequest;
-import com.checkout.payment.gateway.model.PostPaymentResponse;
+import com.checkout.payment.gateway.model.PaymentRequest;
+import com.checkout.payment.gateway.model.PaymentResponse;
 import com.checkout.payment.gateway.ports.BankClient;
 import com.checkout.payment.gateway.repository.PaymentRepository;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-class PaymentGatewayServiceTest {
+class PaymentResponseGatewayServiceTest {
 
   @Test
   void processPaymentSetsAuthorizedStatusWhenBankRespondsAuthorized() {
@@ -22,7 +21,7 @@ class PaymentGatewayServiceTest {
     BankClient bankClient = Mockito.mock(BankClient.class);
     PaymentGatewayService service = new PaymentGatewayService(repository, bankClient);
 
-    PostPaymentRequest request = new PostPaymentRequest();
+    PaymentRequest request = new PaymentRequest();
     request.setCardNumber("4111111111111111");
     request.setExpiryMonth(12);
     request.setExpiryYear(2026);
@@ -35,7 +34,7 @@ class PaymentGatewayServiceTest {
     bankResponse.setAuthorizationCode("auth-code");
     when(bankClient.sendPayment(request)).thenReturn(bankResponse);
 
-    PostPaymentResponse response = service.processPayment(request);
+    PaymentResponse response = service.processPayment(request);
 
     Assertions.assertEquals(PaymentStatus.AUTHORIZED, response.getStatus());
     Assertions.assertEquals("USD", response.getCurrency());
@@ -50,7 +49,7 @@ class PaymentGatewayServiceTest {
     BankClient bankClient = Mockito.mock(BankClient.class);
     PaymentGatewayService service = new PaymentGatewayService(repository, bankClient);
 
-    PostPaymentRequest request = new PostPaymentRequest();
+    PaymentRequest request = new PaymentRequest();
     request.setCardNumber("4111111111111112");
     request.setExpiryMonth(12);
     request.setExpiryYear(2026);
@@ -63,7 +62,7 @@ class PaymentGatewayServiceTest {
     bankResponse.setAuthorizationCode("decline-code");
     when(bankClient.sendPayment(request)).thenReturn(bankResponse);
 
-    PostPaymentResponse response = service.processPayment(request);
+    PaymentResponse response = service.processPayment(request);
 
     Assertions.assertEquals(PaymentStatus.DECLINED, response.getStatus());
     verify(repository).add(response);

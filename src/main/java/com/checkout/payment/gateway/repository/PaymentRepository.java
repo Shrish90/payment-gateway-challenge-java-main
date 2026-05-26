@@ -1,13 +1,13 @@
 package com.checkout.payment.gateway.repository;
 
-import com.checkout.payment.gateway.model.PostPaymentResponse;
+import com.checkout.payment.gateway.model.PaymentResponse;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface PaymentRepository {
 
-  void add(PostPaymentResponse payment);
+  void add(PaymentResponse paymentResponse);
 
-  Optional<PostPaymentResponse> get(UUID id);
+  Optional<PaymentResponse> get(UUID id);
 
 }

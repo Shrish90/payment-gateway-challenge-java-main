@@ -1,9 +1,7 @@
 package com.checkout.payment.gateway.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -12,12 +10,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.io.Serializable;
-import java.time.YearMonth;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostPaymentRequest implements Serializable {
+public class PaymentRequest implements Serializable {
 
   @Schema(description = "Card number", example = "4111111111111111")
   @JsonProperty("card_number")
@@ -50,27 +47,4 @@ public class PostPaymentRequest implements Serializable {
   @Pattern(regexp = "\\d{3,4}", message = "CVV must be 3 or 4 numeric characters")
   private String cvv;
 
-  @JsonIgnore
-  public int getCardNumberLastFour() {
-    if (cardNumber != null && cardNumber.length() >= 4) {
-      String lastFour = cardNumber.substring(cardNumber.length() - 4);
-      return Integer.parseInt(lastFour);
-    }
-    return 0;
-  }
-
-  @JsonIgnore
-  @AssertTrue(message = "Expiry date must be in the future")
-  public boolean isExpiryDateValid() {
-    if (expiryMonth < 1 || expiryMonth > 12 || expiryYear < 1) {
-      return false;
-    }
-    YearMonth expiry = YearMonth.of(expiryYear, expiryMonth);
-    return expiry.isAfter(YearMonth.now());
-  }
-
-  @JsonIgnore
-  public String getExpiryDate() {
-    return String.format("%d/%d", expiryMonth, expiryYear);
-  }
 }
