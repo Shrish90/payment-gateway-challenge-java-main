@@ -2,18 +2,30 @@ package com.checkout.payment.gateway.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 
 public class PostPaymentRequest implements Serializable {
 
+  @Schema(description = "Card number", example = "4111111111111111")
   @JsonProperty("card_number")
   private String cardNumber;
+
+  @Schema(description = "Expiry month", example = "12")
   @JsonProperty("expiry_month")
   private int expiryMonth;
+
+  @Schema(description = "Expiry year", example = "2026")
   @JsonProperty("expiry_year")
   private int expiryYear;
+
+  @Schema(description = "Currency code", example = "USD")
   private String currency;
+
+  @Schema(description = "Amount in minor currency units", example = "100")
   private int amount;
+
+  @Schema(description = "CVV code", example = "123")
   private int cvv;
 
   public String getCardNumber() {
