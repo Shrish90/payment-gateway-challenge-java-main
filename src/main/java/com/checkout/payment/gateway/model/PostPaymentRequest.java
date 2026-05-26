@@ -1,5 +1,6 @@
 package com.checkout.payment.gateway.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 
@@ -7,8 +8,6 @@ public class PostPaymentRequest implements Serializable {
 
   @JsonProperty("card_number")
   private String cardNumber;
-  @JsonProperty("card_number_last_four")
-  private int cardNumberLastFour;
   @JsonProperty("expiry_month")
   private int expiryMonth;
   @JsonProperty("expiry_year")
@@ -25,16 +24,13 @@ public class PostPaymentRequest implements Serializable {
     this.cardNumber = cardNumber;
   }
 
+  @JsonIgnore
   public int getCardNumberLastFour() {
     if (cardNumber != null && cardNumber.length() >= 4) {
       String lastFour = cardNumber.substring(cardNumber.length() - 4);
       return Integer.parseInt(lastFour);
     }
-    return cardNumberLastFour;
-  }
-
-  public void setCardNumberLastFour(int cardNumberLastFour) {
-    this.cardNumberLastFour = cardNumberLastFour;
+    return 0;
   }
 
   public int getExpiryMonth() {
@@ -77,7 +73,7 @@ public class PostPaymentRequest implements Serializable {
     this.cvv = cvv;
   }
 
-  @JsonProperty("expiry_date")
+  @JsonIgnore
   public String getExpiryDate() {
     return String.format("%d/%d", expiryMonth, expiryYear);
   }
@@ -85,7 +81,7 @@ public class PostPaymentRequest implements Serializable {
   @Override
   public String toString() {
     return "PostPaymentRequest{" +
-        "cardNumberLastFour=" + cardNumberLastFour +
+        "cardNumber='" + cardNumber + '\'' +
         ", expiryMonth=" + expiryMonth +
         ", expiryYear=" + expiryYear +
         ", currency='" + currency + '\'' +
