@@ -5,6 +5,7 @@ import com.checkout.payment.gateway.ports.BankClient;
 import com.checkout.payment.gateway.exception.BankUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,10 +18,15 @@ import org.springframework.web.client.RestTemplate;
 public class HttpBankClient implements BankClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(HttpBankClient.class);
-
-  private final RestTemplate rest = new RestTemplate();
-  private final String endpoint = "http://localhost:8080/payments";
+  private final RestTemplate restTemplate;
+  private final String bankPaymentRail;
   private static final int MAX_RETRIES = 2;
+
+  public HttpBankClient(RestTemplate restTemplate,
+      @Value("${bank.endpoint}") String bankPaymentRail) {
+    this.restTemplate = restTemplate;
+    this.bankPaymentRail = bankPaymentRail;
+  }
 
   @Override
   public BankResponse sendPayment(PaymentRequest request) {
@@ -33,19 +39,21 @@ public class HttpBankClient implements BankClient {
         request.getAmount(),
         request.getCvv()
     );
-    HttpEntity<BankPaymentRequest> entity = new HttpEntity<>(bankRequest, headers);
+    HttpEntity<BankPaymentRequest> bankPaymentRequestEntity = new HttpEntity<>(bankRequest, headers);
 
     int attempt = 0;
     while (true) {
       attempt++;
       try {
-        BankResponse resp = rest.postForObject(endpoint, entity, BankResponse.class);
-        return resp != null ? resp : new BankResponse();
+        BankResponse bankResponse = restTemplate.postForObject(bankPaymentRail, bankPaymentRequestEntity, BankResponse.class);
+        return bankResponse != null ? bankResponse : new BankResponse();
+
       } catch (HttpServerErrorException ex) {
         LOG.error("Bank simulator returned server error on attempt {}: {}", attempt, ex.getStatusCode());
         if (attempt >= MAX_RETRIES) {
           throw new BankUnavailableException("Bank simulator unavailable");
         }
+        LOG.info("Retrying bank simulator call (attempt {})", attempt);
       } catch (RestClientException ex) {
         LOG.error("Error calling bank simulator on attempt {}", attempt, ex);
         if (attempt >= MAX_RETRIES) {

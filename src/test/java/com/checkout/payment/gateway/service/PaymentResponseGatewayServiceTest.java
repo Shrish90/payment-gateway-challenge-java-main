@@ -9,12 +9,11 @@ import com.checkout.payment.gateway.enums.PaymentStatus;
 import com.checkout.payment.gateway.model.PaymentRequest;
 import com.checkout.payment.gateway.model.PaymentResponse;
 import com.checkout.payment.gateway.ports.BankClient;
-import com.checkout.payment.gateway.repository.PaymentRepository;
+import com.checkout.payment.gateway.repository.PaymentsCRUDRepository;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Path;
 import jakarta.validation.Validator;
 import java.util.Collections;
-import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,7 +23,7 @@ class PaymentResponseGatewayServiceTest {
 
   @Test
   void processPaymentSetsAuthorizedStatusWhenBankRespondsAuthorized() {
-    PaymentRepository repository = Mockito.mock(PaymentRepository.class);
+    PaymentsCRUDRepository repository = Mockito.mock(PaymentsCRUDRepository.class);
     BankClient bankClient = Mockito.mock(BankClient.class);
     Validator validator = Mockito.mock(Validator.class);
     when(validator.validate(any(PaymentRequest.class))).thenReturn(Collections.emptySet());
@@ -54,7 +53,7 @@ class PaymentResponseGatewayServiceTest {
 
   @Test
   void processPaymentSetsDeclinedStatusWhenBankRespondsNotAuthorized() {
-    PaymentRepository repository = Mockito.mock(PaymentRepository.class);
+    PaymentsCRUDRepository repository = Mockito.mock(PaymentsCRUDRepository.class);
     BankClient bankClient = Mockito.mock(BankClient.class);
     Validator validator = Mockito.mock(Validator.class);
     when(validator.validate(any(PaymentRequest.class))).thenReturn(Collections.emptySet());
@@ -81,7 +80,7 @@ class PaymentResponseGatewayServiceTest {
 
   @Test
   void processPaymentAddsViolationsWhenRequestIsRejected() {
-    PaymentRepository repository = Mockito.mock(PaymentRepository.class);
+    PaymentsCRUDRepository repository = Mockito.mock(PaymentsCRUDRepository.class);
     BankClient bankClient = Mockito.mock(BankClient.class);
     Validator validator = Mockito.mock(Validator.class);
     ConstraintViolation<PaymentRequest> violation = Mockito.mock(ConstraintViolation.class);

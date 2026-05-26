@@ -7,7 +7,7 @@ import com.checkout.payment.gateway.exception.EventProcessingException;
 import com.checkout.payment.gateway.model.PaymentRequest;
 import com.checkout.payment.gateway.model.PaymentResponse;
 import com.checkout.payment.gateway.ports.BankClient;
-import com.checkout.payment.gateway.repository.PaymentRepository;
+import com.checkout.payment.gateway.repository.PaymentsCRUDRepository;
 import com.checkout.payment.gateway.utility.PaymentGatewayUtils;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -19,22 +19,52 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class responsible for processing payment requests and managing payment records.
+ * It validates incoming payment requests, interacts with the bank client to process payments,
+ * and stores the results in the payments repository.
+ * @author Shrish Tiwari
+ * @version 1.0
+ * @since May 2026
+ */
 @Service
 @AllArgsConstructor
 public class PaymentGatewayService {
 
+  /** Logger instance for logging information and errors during payment processing.
+   */
   private static final Logger LOG = LoggerFactory.getLogger(PaymentGatewayService.class);
 
-  private final PaymentRepository paymentsRepository;
+  /** The PaymentsCRUDRepository is used to store and retrieve payment responses based on their unique identifiers.
+   */
+  private final PaymentsCRUDRepository paymentsRepository;
+
+  /** The BankClient is an interface that defines the methods for interacting with the bank to process payments.
+   * It abstracts the details of the bank communication and allows for different implementations.
+   */
   private final BankClient bankClient;
+
+  /** The Validator is used to validate the incoming PaymentRequest objects against defined constraints to ensure data integrity before processing.
+   */
   private final Validator validator;
 
+  /** Retrieves a payment response by its unique identifier.
+   * @param id The UUID of the payment to retrieve.
+   * @return The PaymentResponse associated with the given ID.
+   * @throws EventProcessingException if no payment is found for the provided ID.
+   */
   public PaymentResponse getPaymentById(UUID id) {
-    LOG.debug("Requesting access to to payment with ID {}", id);
-    return paymentsRepository.get(id).orElseThrow(() -> new EventProcessingException("Invalid ID"));
+    LOG.info("Requesting access to to payment with ID {}", id);
+    return paymentsRepository.get(id).orElseThrow(() -> new EventProcessingException("Invalid Payment ID"));
   }
 
+  /** Processes a payment request by validating the input, interacting with the bank client, and storing the result.
+   * @param paymentRequest The PaymentRequest object containing the details of the payment to be processed.
+   * @return A PaymentResponse object containing the result of the payment processing.
+   * @throws BankUnavailableException if the bank is unavailable during payment processing.
+   */
   public PaymentResponse processPayment(PaymentRequest paymentRequest) {
+    LOG.info("Processing payment request for amount {} and currency {}", paymentRequest.getAmount(), paymentRequest.getCurrency());
 
     Set<ConstraintViolation<PaymentRequest>> violations = validator.validate(paymentRequest);
     PaymentResponse paymentResponse;
@@ -49,9 +79,9 @@ public class PaymentGatewayService {
       return paymentResponse;
     }
     try {
-      BankResponse bankResp = bankClient.sendPayment(paymentRequest);
+      BankResponse bankResponse = bankClient.sendPayment(paymentRequest);
 
-      if (bankResp != null && bankResp.isAuthorized()) {
+      if (bankResponse != null && bankResponse.isAuthorized()) {
         paymentResponse = createPaymentResponse(paymentRequest, PaymentStatus.AUTHORIZED, null);
       } else {
         paymentResponse = createPaymentResponse(paymentRequest, PaymentStatus.DECLINED, null);
@@ -67,6 +97,12 @@ public class PaymentGatewayService {
     return paymentResponse;
   }
 
+  /** Helper method to create a PaymentResponse object based on the payment request, status, and any validation violations.
+   * @param paymentRequest The original PaymentRequest object containing the details of the payment.
+   * @param status The PaymentStatus to be set in the response (AUTHORIZED, DECLINED, or REJECTED).
+   * @param violations A list of violation messages if the payment request was rejected due to validation errors.
+   * @return A PaymentResponse object populated with the provided information.
+   */
   private PaymentResponse createPaymentResponse(PaymentRequest paymentRequest,
       PaymentStatus status, List<String> violations) {
     return PaymentResponse.builder()
@@ -80,12 +116,15 @@ public class PaymentGatewayService {
         .violations(violations)
         .build();
   }
-
+  /** Helper method to safely extract the last four digits of a card number, handling potential exceptions.
+   * @param cardNumber The full card number as a String.
+   * @return An integer representing the last four digits of the card number, or the entire card number if it cannot be parsed.
+   */
   private int getCardNumberLastFourSafe(String cardNumber) {
     try {
       return PaymentGatewayUtils.getLastFourCardDigits(cardNumber);
     } catch (IllegalArgumentException ex) {
-      return 0;
+      return Integer.parseInt(cardNumber);
     }
   }
 }

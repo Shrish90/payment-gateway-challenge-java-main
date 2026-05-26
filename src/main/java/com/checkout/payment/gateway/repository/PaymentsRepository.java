@@ -7,7 +7,7 @@ import com.checkout.payment.gateway.model.PaymentResponse;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class PaymentsRepository implements PaymentRepository {
+public class PaymentsRepository implements PaymentsCRUDRepository {
 
   private final HashMap<UUID, PaymentResponse> payments = new HashMap<>();
 

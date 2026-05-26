@@ -4,7 +4,7 @@ import com.checkout.payment.gateway.model.PaymentResponse;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface PaymentRepository {
+public interface PaymentsCRUDRepository {
 
   void add(PaymentResponse paymentResponse);
 

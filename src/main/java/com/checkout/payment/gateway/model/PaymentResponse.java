@@ -9,6 +9,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+/** PaymentResponse represents the response returned after processing a payment request.
+ * It contains details about the payment status, card information, amount, currency, and any violations that occurred during processing.
+ * @author Shrish Tiwari
+ * @version 1.0
+ * @since May 2026
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @NoArgsConstructor
