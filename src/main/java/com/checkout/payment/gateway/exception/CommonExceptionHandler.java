@@ -1,10 +1,12 @@
 package com.checkout.payment.gateway.exception;
 
 import com.checkout.payment.gateway.model.ErrorResponse;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -20,10 +22,13 @@ public class CommonExceptionHandler {
         HttpStatus.NOT_FOUND);
   }
 
-  @ExceptionHandler(InvalidPaymentException.class)
-  public ResponseEntity<ErrorResponse> handleInvalidRequest(InvalidPaymentException ex) {
-    LOG.warn("Invalid payment request: {}", ex.getMessage());
-    return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+    String message = ex.getBindingResult().getAllErrors().stream()
+        .map(objectError -> objectError.getDefaultMessage())
+        .collect(Collectors.joining("; "));
+    LOG.warn("Request validation failed: {}", message);
+    return new ResponseEntity<>(new ErrorResponse(message), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(com.checkout.payment.gateway.exception.BankUnavailableException.class)

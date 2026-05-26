@@ -1,7 +1,13 @@
 package com.checkout.payment.gateway.adapters.bank;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BankPaymentRequest {
 
   @JsonProperty("card_number")
@@ -13,52 +19,4 @@ public class BankPaymentRequest {
   private String currency;
   private int amount;
   private String cvv;
-
-  public BankPaymentRequest(String cardNumber, String expiryDate, String currency, int amount, String cvv) {
-    this.cardNumber = cardNumber;
-    this.expiryDate = expiryDate;
-    this.currency = currency;
-    this.amount = amount;
-    this.cvv = cvv;
-  }
-
-  public String getCardNumber() {
-    return cardNumber;
-  }
-
-  public void setCardNumber(String cardNumber) {
-    this.cardNumber = cardNumber;
-  }
-
-  public String getExpiryDate() {
-    return expiryDate;
-  }
-
-  public void setExpiryDate(String expiryDate) {
-    this.expiryDate = expiryDate;
-  }
-
-  public String getCurrency() {
-    return currency;
-  }
-
-  public void setCurrency(String currency) {
-    this.currency = currency;
-  }
-
-  public int getAmount() {
-    return amount;
-  }
-
-  public void setAmount(int amount) {
-    this.amount = amount;
-  }
-
-  public String getCvv() {
-    return cvv;
-  }
-
-  public void setCvv(String cvv) {
-    this.cvv = cvv;
-  }
 }

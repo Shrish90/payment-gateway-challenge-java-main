@@ -28,7 +28,7 @@ class PaymentGatewayServiceTest {
     request.setExpiryYear(2026);
     request.setCurrency("USD");
     request.setAmount(100);
-    request.setCvv(123);
+    request.setCvv("123");
 
     BankResponse bankResponse = new BankResponse();
     bankResponse.setAuthorized(true);
@@ -56,7 +56,7 @@ class PaymentGatewayServiceTest {
     request.setExpiryYear(2026);
     request.setCurrency("USD");
     request.setAmount(100);
-    request.setCvv(123);
+    request.setCvv("123");
 
     BankResponse bankResponse = new BankResponse();
     bankResponse.setAuthorized(false);

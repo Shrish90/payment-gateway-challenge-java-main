@@ -52,7 +52,7 @@ class PaymentGatewayControllerTest {
 
   @Test
   void whenCreatePaymentWithInvalidCardNumberThenReturnsBadRequest() throws Exception {
-    String body = "{\"card_number\":\"1234\",\"expiry_month\":12,\"expiry_year\":2026,\"currency\":\"USD\",\"amount\":100,\"cvv\":123}";
+    String body = "{\"card_number\":\"1234\",\"expiry_month\":12,\"expiry_year\":2026,\"currency\":\"USD\",\"amount\":100,\"cvv\":\"123\"}";
 
     mvc.perform(MockMvcRequestBuilders.post("/payment")
             .contentType(MediaType.APPLICATION_JSON)
@@ -88,7 +88,7 @@ class PaymentGatewayControllerTest {
   void whenBankSimulatorIsUnavailableThenReturnsServiceUnavailable() throws Exception {
     when(bankClient.sendPayment(any())).thenThrow(new com.checkout.payment.gateway.exception.BankUnavailableException("Bank unavailable"));
 
-    String body = "{\"card_number\":\"4111111111111111\",\"expiry_month\":12,\"expiry_year\":2026,\"currency\":\"USD\",\"amount\":100,\"cvv\":123}";
+    String body = "{\"card_number\":\"4111111111111111\",\"expiry_month\":12,\"expiry_year\":2026,\"currency\":\"USD\",\"amount\":100,\"cvv\":\"123\"}";
     mvc.perform(MockMvcRequestBuilders.post("/payment")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))

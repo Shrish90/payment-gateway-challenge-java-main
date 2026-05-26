@@ -1,12 +1,11 @@
 package com.checkout.payment.gateway.service;
 
 import com.checkout.payment.gateway.exception.EventProcessingException;
-import com.checkout.payment.gateway.exception.InvalidPaymentException;
 import com.checkout.payment.gateway.model.PostPaymentRequest;
 import com.checkout.payment.gateway.model.PostPaymentResponse;
-import com.checkout.payment.gateway.domain.PostPaymentRequestValidator;
 import com.checkout.payment.gateway.enums.PaymentStatus;
 import com.checkout.payment.gateway.repository.PaymentRepository;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +30,6 @@ public class PaymentGatewayService {
   }
 
   public PostPaymentResponse processPayment(PostPaymentRequest paymentRequest) {
-    PostPaymentRequestValidator.validate(paymentRequest);
-
     UUID id = UUID.randomUUID();
     PostPaymentResponse response = new PostPaymentResponse();
     response.setId(id);
