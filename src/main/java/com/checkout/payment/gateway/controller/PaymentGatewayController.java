@@ -26,7 +26,7 @@ public class PaymentGatewayController {
   }
 
   @PostMapping("/payment")
-  public ResponseEntity<PaymentResponse> createPayment(@Valid @RequestBody PaymentRequest request) {
+  public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest request) {
     PaymentResponse response = paymentGatewayService.processPayment(request);
     return new ResponseEntity<>(response, HttpStatus.CREATED);
   }

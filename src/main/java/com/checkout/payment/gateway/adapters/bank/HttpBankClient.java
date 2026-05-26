@@ -28,10 +28,10 @@ public class HttpBankClient implements BankClient {
     headers.setContentType(MediaType.APPLICATION_JSON);
     BankPaymentRequest bankRequest = new BankPaymentRequest(
         request.getCardNumber(),
-        request.getExpiryDate(),
+        String.format("%02d/%04d", request.getExpiryMonth(), request.getExpiryYear()),
         request.getCurrency(),
         request.getAmount(),
-        String.valueOf(request.getCvv())
+        request.getCvv()
     );
     HttpEntity<BankPaymentRequest> entity = new HttpEntity<>(bankRequest, headers);
 

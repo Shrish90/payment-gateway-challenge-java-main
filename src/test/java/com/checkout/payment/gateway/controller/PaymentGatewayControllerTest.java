@@ -23,7 +23,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class PaymentResponseGatewayControllerTest {
+class PaymentGatewayControllerTest {
 
   @Autowired
   private MockMvc mvc;
@@ -63,25 +63,25 @@ class PaymentResponseGatewayControllerTest {
 
   @Test
   void whenPaymentWithIdExistThenCorrectPaymentIsReturned() throws Exception {
-    PaymentResponse paymentResponse = new PaymentResponse();
-    paymentResponse.setId(UUID.randomUUID());
-    paymentResponse.setAmount(10);
-    paymentResponse.setCurrency("USD");
-    paymentResponse.setStatus(PaymentStatus.AUTHORIZED);
-    paymentResponse.setExpiryMonth(12);
-    paymentResponse.setExpiryYear(2024);
-    paymentResponse.setCardNumberLastFour(4321);
+    PaymentResponse payment = new PaymentResponse();
+    payment.setId(UUID.randomUUID());
+    payment.setAmount(10);
+    payment.setCurrency("USD");
+    payment.setStatus(PaymentStatus.AUTHORIZED);
+    payment.setExpiryMonth(12);
+    payment.setExpiryYear(2024);
+    payment.setCardNumberLastFour(4321);
 
-    paymentsRepository.add(paymentResponse);
+    paymentsRepository.add(payment);
 
-    mvc.perform(MockMvcRequestBuilders.get("/payment/" + paymentResponse.getId()))
+    mvc.perform(MockMvcRequestBuilders.get("/payment/" + payment.getId()))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.status").value(paymentResponse.getStatus().getName()))
-        .andExpect(jsonPath("$.cardNumberLastFour").value(paymentResponse.getCardNumberLastFour()))
-        .andExpect(jsonPath("$.expiryMonth").value(paymentResponse.getExpiryMonth()))
-        .andExpect(jsonPath("$.expiryYear").value(paymentResponse.getExpiryYear()))
-        .andExpect(jsonPath("$.currency").value(paymentResponse.getCurrency()))
-        .andExpect(jsonPath("$.amount").value(paymentResponse.getAmount()));
+        .andExpect(jsonPath("$.status").value(payment.getStatus().getName()))
+        .andExpect(jsonPath("$.cardNumberLastFour").value(payment.getCardNumberLastFour()))
+        .andExpect(jsonPath("$.expiryMonth").value(payment.getExpiryMonth()))
+        .andExpect(jsonPath("$.expiryYear").value(payment.getExpiryYear()))
+        .andExpect(jsonPath("$.currency").value(payment.getCurrency()))
+        .andExpect(jsonPath("$.amount").value(payment.getAmount()));
   }
 
   @Test

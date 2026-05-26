@@ -10,6 +10,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.io.Serializable;
+import java.time.YearMonth;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.AssertTrue;
 
 @Data
 @NoArgsConstructor
@@ -30,7 +33,7 @@ public class PaymentRequest implements Serializable {
 
   @Schema(description = "Expiry year", example = "2026")
   @JsonProperty("expiry_year")
-  @Min(value = 1, message = "Expiry year must be a positive integer")
+  @Min(value = 1900, message = "Expiry year must be a positive integer")
   private int expiryYear;
 
   @Schema(description = "Currency code", example = "USD")
@@ -46,5 +49,15 @@ public class PaymentRequest implements Serializable {
   @NotBlank(message = "CVV is required")
   @Pattern(regexp = "\\d{3,4}", message = "CVV must be 3 or 4 numeric characters")
   private String cvv;
+
+  @JsonIgnore
+  @AssertTrue(message = "Expiry date must be in the future")
+  public boolean isExpiryDateValid() {
+    if (expiryMonth < 1 || expiryMonth > 12 || expiryYear < 1) {
+      return false;
+    }
+    YearMonth expiry = YearMonth.of(expiryYear, expiryMonth);
+    return expiry.isAfter(YearMonth.now());
+  }
 
 }

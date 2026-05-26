@@ -8,15 +8,16 @@ import com.checkout.payment.gateway.model.PaymentRequest;
 import com.checkout.payment.gateway.model.PaymentResponse;
 import com.checkout.payment.gateway.ports.BankClient;
 import com.checkout.payment.gateway.repository.PaymentRepository;
-import java.util.Set;
-import java.util.UUID;
 import com.checkout.payment.gateway.utility.PaymentGatewayUtils;
 import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import jakarta.validation.Validator;
 
 @Service
 @AllArgsConstructor
@@ -40,17 +41,20 @@ public class PaymentGatewayService {
 
     if (!violations.isEmpty()) {
       LOG.error("Payment request validation failed with errors {}", violations);
-      paymentResponse = createPaymentResponse(paymentRequest, PaymentStatus.REJECTED);
+      paymentResponse = createPaymentResponse(paymentRequest, PaymentStatus.REJECTED,
+          violations.stream()
+              .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
+              .toList());
       paymentsRepository.add(paymentResponse);
       return paymentResponse;
     }
     try {
       BankResponse bankResp = bankClient.sendPayment(paymentRequest);
 
-      if(bankResp != null && bankResp.isAuthorized()) {
-        paymentResponse = createPaymentResponse(paymentRequest, PaymentStatus.AUTHORIZED);
+      if (bankResp != null && bankResp.isAuthorized()) {
+        paymentResponse = createPaymentResponse(paymentRequest, PaymentStatus.AUTHORIZED, null);
       } else {
-        paymentResponse = createPaymentResponse(paymentRequest, PaymentStatus.DECLINED);
+        paymentResponse = createPaymentResponse(paymentRequest, PaymentStatus.DECLINED, null);
       }
     } catch (BankUnavailableException ex) {
       LOG.error("Bank unavailable while processing payment", ex);
@@ -58,19 +62,30 @@ public class PaymentGatewayService {
     }
 
     paymentsRepository.add(paymentResponse);
-    LOG.debug("Processed payment with id {} status {}", paymentResponse.getId(), paymentResponse.getStatus());
+    LOG.debug("Processed payment with id {} status {}", paymentResponse.getId(),
+        paymentResponse.getStatus());
     return paymentResponse;
   }
 
-  private PaymentResponse createPaymentResponse(PaymentRequest paymentRequest, PaymentStatus status) {
+  private PaymentResponse createPaymentResponse(PaymentRequest paymentRequest,
+      PaymentStatus status, List<String> violations) {
     return PaymentResponse.builder()
-         .id(UUID.randomUUID())
-         .status(status)
+        .id(UUID.randomUUID())
+        .status(status)
         .expiryYear(paymentRequest.getExpiryYear())
-          .expiryMonth(paymentRequest.getExpiryMonth())
-          .cardNumberLastFour(PaymentGatewayUtils.getLastFourCardDigits(paymentRequest.getCardNumber()))
-         .amount(paymentRequest.getAmount())
-         .currency(paymentRequest.getCurrency())
-         .build();
+        .expiryMonth(paymentRequest.getExpiryMonth())
+        .cardNumberLastFour(getCardNumberLastFourSafe(paymentRequest.getCardNumber()))
+        .amount(paymentRequest.getAmount())
+        .currency(paymentRequest.getCurrency())
+        .violations(violations)
+        .build();
+  }
+
+  private int getCardNumberLastFourSafe(String cardNumber) {
+    try {
+      return PaymentGatewayUtils.getLastFourCardDigits(cardNumber);
+    } catch (IllegalArgumentException ex) {
+      return 0;
+    }
   }
 }
