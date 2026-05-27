@@ -39,6 +39,10 @@ public class PaymentGatewayService {
    */
   private final PaymentsCRUDRepository paymentsRepository;
 
+  /** A constant message used when a payment is not found for a given ID, to provide consistent error handling.
+   */
+  private static final String INVALID_PAYMENT_ID_MESSAGE = "No payment found for the provided ID";
+
   /** The BankClient is an interface that defines the methods for interacting with the bank to process payments.
    * It abstracts the details of the bank communication and allows for different implementations.
    */
@@ -55,7 +59,7 @@ public class PaymentGatewayService {
    */
   public PaymentResponse getPaymentById(UUID id) {
     LOG.info("Requesting access to to payment with ID {}", id);
-    return paymentsRepository.get(id).orElseThrow(() -> new EventProcessingException("Invalid Payment ID"));
+    return paymentsRepository.get(id).orElseThrow(() -> new EventProcessingException(INVALID_PAYMENT_ID_MESSAGE));
   }
 
   /** Processes a payment request by validating the input, interacting with the bank client, and storing the result.
