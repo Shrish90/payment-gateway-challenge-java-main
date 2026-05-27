@@ -31,7 +31,7 @@ public class CommonExceptionHandler {
     return new ResponseEntity<>(new ErrorResponse(message), HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler(com.checkout.payment.gateway.exception.BankUnavailableException.class)
+  @ExceptionHandler(BankUnavailableException.class)
   public ResponseEntity<ErrorResponse> handleBankUnavailable(com.checkout.payment.gateway.exception.BankUnavailableException ex) {
     LOG.error("Bank unavailable: {}", ex.getMessage());
     return new ResponseEntity<>(new ErrorResponse("Bank unavailable"), HttpStatus.SERVICE_UNAVAILABLE);
