@@ -160,30 +160,6 @@ Edit `src/main/resources/application.properties`:
 bank.endpoint=http://localhost:8080/payments    # Bank simulator endpoint
 ```
 
-## Project Structure
-
-```
-payment-gateway-challenge-java-main/
-├── src/main/java/com/checkout/payment/gateway/
-│   ├── PaymentGatewayApplication.java           (Spring Boot entry point)
-│   ├── model/                                   (DTOs and value objects)
-│   ├── service/PaymentGatewayService.java       (Core business logic)
-│   ├── ports/                                   (Abstraction interfaces)
-│   ├── adapters/                                (Concrete implementations)
-│   ├── controller/PaymentGatewayController.java (REST endpoints)
-│   ├── repository/PaymentsRepository.java       (In-memory storage)
-│   ├── exception/                               (Error handling)
-│   └── configuration/ApplicationConfiguration   (Spring configuration)
-├── src/main/resources/
-│   └── application.properties                   (Externalized config)
-├── src/test/java/com/checkout/payment/gateway/
-│   ├── controller/                              (Controller tests)
-│   └── service/                                 (Service tests)
-├── docker-compose.yml                           (Bank simulator setup)
-├── build.gradle                                 (Gradle configuration)
-└── README.md                                    (This file)
-```
-
 ## Key Design Decisions
 
 ### 1. Hexagonal Architecture
