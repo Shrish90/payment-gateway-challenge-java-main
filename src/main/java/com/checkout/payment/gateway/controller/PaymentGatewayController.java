@@ -4,8 +4,9 @@ import com.checkout.payment.gateway.model.PaymentRequest;
 import com.checkout.payment.gateway.model.PaymentResponse;
 import com.checkout.payment.gateway.service.PaymentGatewayService;
 import java.util.UUID;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class PaymentGatewayController {
 
+  private static final Logger LOG = LoggerFactory.getLogger(PaymentGatewayController.class);
+
   /** The PaymentGatewayService is injected into the controller to handle the business logic of processing payments and retrieving payment details.
    */
   private final PaymentGatewayService paymentGatewayService;
@@ -37,6 +40,7 @@ public class PaymentGatewayController {
    */
   @GetMapping("/{id}")
   public ResponseEntity<PaymentResponse> getPayment(@PathVariable UUID id) {
+    LOG.info("Received request to retrieve payment with ID {}", id);
     return new ResponseEntity<>(paymentGatewayService.getPaymentById(id), HttpStatus.OK);
   }
 
@@ -46,6 +50,7 @@ public class PaymentGatewayController {
    */
   @PostMapping
   public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest request) {
+    LOG.info("Received request to create a new payment");
     PaymentResponse response = paymentGatewayService.processPayment(request);
     return new ResponseEntity<>(response, HttpStatus.CREATED);
   }

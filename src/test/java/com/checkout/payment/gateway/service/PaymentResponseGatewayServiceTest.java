@@ -9,7 +9,7 @@ import com.checkout.payment.gateway.enums.PaymentStatus;
 import com.checkout.payment.gateway.model.PaymentRequest;
 import com.checkout.payment.gateway.model.PaymentResponse;
 import com.checkout.payment.gateway.ports.BankClient;
-import com.checkout.payment.gateway.repository.PaymentsCRUDRepository;
+import com.checkout.payment.gateway.ports.PaymentsCRUDRepository;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Path;
 import jakarta.validation.Validator;

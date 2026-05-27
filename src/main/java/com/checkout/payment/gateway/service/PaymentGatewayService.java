@@ -7,7 +7,7 @@ import com.checkout.payment.gateway.exception.EventProcessingException;
 import com.checkout.payment.gateway.model.PaymentRequest;
 import com.checkout.payment.gateway.model.PaymentResponse;
 import com.checkout.payment.gateway.ports.BankClient;
-import com.checkout.payment.gateway.repository.PaymentsCRUDRepository;
+import com.checkout.payment.gateway.ports.PaymentsCRUDRepository;
 import com.checkout.payment.gateway.utility.PaymentGatewayUtils;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;

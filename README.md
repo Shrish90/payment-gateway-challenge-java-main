@@ -2,16 +2,6 @@
 
 A production-ready Spring Boot implementation of a Payment Gateway with comprehensive validation, error handling, and hexagonal architecture for maintainability and testability.
 
-## Features
-
-✅ **Three-state Payment Processing**: Payments can be Authorized, Declined, or Rejected  
-✅ **Bean-based Validation**: Jakarta Bean Validation with custom cross-field constraints  
-✅ **Violation Reporting**: Rejected payments include detailed validation violation messages  
-✅ **Bank Simulator Integration**: Docker-based bank simulator for testing payment flows  
-✅ **Configurable Bank Endpoint**: Externalized via `application.properties`  
-✅ **Comprehensive Test Coverage**: 11 unit tests covering service and controller layers  
-✅ **Hexagonal Architecture**: Clean separation of domain, application, and infrastructure concerns  
-
 ## Architecture Overview
 
 The codebase follows a **Hexagonal (Ports & Adapters) architecture** to separate core business logic from delivery mechanisms and external integrations. This design enables:
@@ -49,6 +39,7 @@ src/main/java/com/checkout/payment/gateway/
 │   └── BankUnavailableException
 └── configuration/
     └── ApplicationConfiguration       (Spring beans and DI)
+```
 
 ## Technology Stack
 
@@ -153,34 +144,13 @@ src/main/java/com/checkout/payment/gateway/
 }
 ```
 
-**Error Response (404 Not Found):**
-```json
-{
-  "message": "Page not found"
-}
-
-## Running Locally
-
-### Prerequisites
-- Java 17+
-- Docker & Docker Compose (for bank simulator)
-- Gradle 8.2+
-
-### Setup
-
-1. **Start the bank simulator** (optional — if you want to test against a real bank endpoint):
-```bash
-docker-compose up
-```
-This starts a mock bank service on `http://localhost:8080/payments`
-
-2. **Start the application**:
+1**Start the application**:
 ```bash
 ./gradlew bootRun
 ```
 The application starts on `http://localhost:8090`
 
-3. **Access API documentation**:
+2**Access API documentation**:
 Open [http://localhost:8090/swagger-ui/index.html](http://localhost:8090/swagger-ui/index.html)
 
 ### Configuration
@@ -189,33 +159,6 @@ Edit `src/main/resources/application.properties`:
 ```properties
 bank.endpoint=http://localhost:8080/payments    # Bank simulator endpoint
 ```
-
-## Testing
-
-### Run All Tests
-```bash
-./gradlew clean test
-```
-
-### Test Coverage
-**11 tests across 3 test classes:**
-
-**PaymentGatewayControllerTest** (5 tests)
-- ✅ Valid payment request → 201 Created
-- ✅ Invalid card number → 201 with violations
-- ✅ Payment by ID exists → 200 with details
-- ✅ Bank simulator unavailable → 503 Service Unavailable
-- ✅ Payment by ID not found → 404 Not Found
-
-**PaymentResponseGatewayControllerTest** (5 tests)
-- Same as above (duplicate test class for comprehensive coverage)
-
-**PaymentResponseGatewayServiceTest** (3 tests)
-- ✅ Authorized status when bank approves
-- ✅ Declined status when bank denies
-- ✅ Rejected status with violations when validation fails
-
-All tests pass: `BUILD SUCCESSFUL`
 
 ## Project Structure
 
@@ -261,31 +204,3 @@ payment-gateway-challenge-java-main/
 ### 4. Lombok for Boilerplate
 - **Why**: Reduces code verbosity (getters, setters, constructors, equals/hashCode)
 - **Benefit**: Improves readability; less maintenance; generated code is IDE-friendly
-
-## Future Enhancements
-
-- [ ] **Persistent Storage**: Migrate in-memory `HashMap` to JPA with H2/PostgreSQL
-- [ ] **Async Processing**: Use Spring async or message queues for bank calls
-- [ ] **Caching**: Cache bank responses to reduce redundant calls
-- [ ] **Audit Trail**: Log all payment state transitions
-- [ ] **Rate Limiting**: Prevent abuse via request throttling
-- [ ] **Enhanced Security**: API key authentication, request signing, TLS
-- [ ] **Transaction Support**: Handle concurrent payment processing safely
-
-## Notes & Troubleshooting
-
-### Bank Simulator Issues
-If tests fail with "Bank unavailable":
-1. Ensure Docker is running: `docker ps`
-2. Check bank simulator: `curl http://localhost:8080/payments -X POST -H "Content-Type: application/json" -d '{"card_number":"4111111111111111","expiry_month":12,"expiry_year":2026,"cvv":"123"}'`
-3. Restart compose: `docker-compose restart`
-
-### Port Conflicts
-- Application: `8090`
-- Bank simulator: `8080`
-- If ports are unavailable, update `application.properties` and `docker-compose.yml`
-
-### Compilation Issues
-- Ensure Java 17+: `java -version`
-- Clear Gradle cache: `./gradlew clean`
-- Rebuild: `./gradlew build`

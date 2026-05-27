@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 import com.checkout.payment.gateway.model.PaymentResponse;
+import com.checkout.payment.gateway.ports.PaymentsCRUDRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository

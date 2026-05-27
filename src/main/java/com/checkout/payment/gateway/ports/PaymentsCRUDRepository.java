@@ -1,4 +1,4 @@
-package com.checkout.payment.gateway.repository;
+package com.checkout.payment.gateway.ports;
 
 import com.checkout.payment.gateway.model.PaymentResponse;
 import java.util.Optional;
