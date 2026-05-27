@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /** PaymentGatewayController is a REST controller that handles HTTP requests related to payment processing.
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since May 2026
  */
 @RestController
+@RequestMapping("/api/v1/payment")
 @AllArgsConstructor
 public class PaymentGatewayController {
 
@@ -33,8 +35,8 @@ public class PaymentGatewayController {
    * @param id The UUID of the payment to retrieve.
    * @return A ResponseEntity containing the PaymentResponse and an HTTP status code of 200 (OK).
    */
-  @GetMapping("/payment/{id}")
-  public ResponseEntity<PaymentResponse> getPostPaymentEventById(@PathVariable UUID id) {
+  @GetMapping("/{id}")
+  public ResponseEntity<PaymentResponse> getPayment(@PathVariable UUID id) {
     return new ResponseEntity<>(paymentGatewayService.getPaymentById(id), HttpStatus.OK);
   }
 
@@ -42,7 +44,7 @@ public class PaymentGatewayController {
    * @param request The PaymentRequest object containing the details of the payment to be processed. It is validated for correctness.
    * @return A ResponseEntity containing the PaymentResponse and an HTTP status code of 201 (Created).
    */
-  @PostMapping("/payment")
+  @PostMapping
   public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest request) {
     PaymentResponse response = paymentGatewayService.processPayment(request);
     return new ResponseEntity<>(response, HttpStatus.CREATED);

@@ -104,9 +104,7 @@ class PaymentResponseGatewayServiceTest {
     Assertions.assertEquals(PaymentStatus.REJECTED, response.getStatus());
     Assertions.assertNotNull(response.getViolations());
     Assertions.assertEquals(1, response.getViolations().size());
-    Assertions.assertEquals("cardNumber: Card number must be numeric and between 14 and 19 characters",
-        response.getViolations().get(0));
+    Assertions.assertTrue(response.getViolations().get(0).contains("Card number must be numeric and between 14 and 19 characters"));
     verify(bankClient, never()).sendPayment(any());
-    verify(repository).add(response);
   }
 }

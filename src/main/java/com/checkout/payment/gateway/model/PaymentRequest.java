@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -41,9 +42,10 @@ public class PaymentRequest implements Serializable {
    */
   @Schema(description = "Expiry month", example = "12")
   @JsonProperty("expiry_month")
+  @NotNull(message = "Expiry month is required")
   @Min(value = 1, message = "Expiry month must be between 1 and 12")
   @Max(value = 12, message = "Expiry month must be between 1 and 12")
-  private int expiryMonth;
+  private Integer expiryMonth;
 
   /**
    * Expiry year of the card.
@@ -51,8 +53,9 @@ public class PaymentRequest implements Serializable {
    */
   @Schema(description = "Expiry year", example = "2026")
   @JsonProperty("expiry_year")
+  @NotNull(message = "Expiry year is required")
   @Min(value = 1900, message = "Expiry year must be a positive integer")
-  private int expiryYear;
+  private Integer expiryYear;
 
   /**
    * Currency code for the payment.
@@ -68,8 +71,9 @@ public class PaymentRequest implements Serializable {
    * Must be a positive integer.
    */
   @Schema(description = "Amount in minor currency units", example = "100")
+  @NotNull(message = "Amount is required")
   @Min(value = 1, message = "Amount must be a positive integer")
-  private int amount;
+  private Integer amount;
 
   /***
    * CVV code of the card.

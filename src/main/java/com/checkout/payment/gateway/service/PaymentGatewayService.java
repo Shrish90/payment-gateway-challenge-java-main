@@ -71,11 +71,13 @@ public class PaymentGatewayService {
 
     if (!violations.isEmpty()) {
       LOG.error("Payment request validation failed with errors {}", violations);
-      paymentResponse = createPaymentResponse(paymentRequest, PaymentStatus.REJECTED,
+      // TODO: Update paymentRequest to request object in case reject status should be saved into database
+      paymentResponse = createPaymentResponse(new PaymentRequest(), PaymentStatus.REJECTED,
           violations.stream()
               .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
               .toList());
-      paymentsRepository.add(paymentResponse);
+      // TODO: Need to Clarify if rejected payment request should be saved into database with reject status or not. If yes, then uncomment the below line to save the rejected payment response into database.
+      //paymentsRepository.add(paymentResponse);
       return paymentResponse;
     }
     try {
@@ -106,7 +108,7 @@ public class PaymentGatewayService {
   private PaymentResponse createPaymentResponse(PaymentRequest paymentRequest,
       PaymentStatus status, List<String> violations) {
     return PaymentResponse.builder()
-        .id(UUID.randomUUID())
+        .id(paymentRequest.getAmount() != null ? UUID.randomUUID() : null) // TODO: update based on reject save in database.
         .status(status)
         .expiryYear(paymentRequest.getExpiryYear())
         .expiryMonth(paymentRequest.getExpiryMonth())
@@ -120,11 +122,11 @@ public class PaymentGatewayService {
    * @param cardNumber The full card number as a String.
    * @return An integer representing the last four digits of the card number, or the entire card number if it cannot be parsed.
    */
-  private int getCardNumberLastFourSafe(String cardNumber) {
+  private Integer getCardNumberLastFourSafe(String cardNumber) {
     try {
       return PaymentGatewayUtils.getLastFourCardDigits(cardNumber);
     } catch (IllegalArgumentException ex) {
-      return Integer.parseInt(cardNumber);
+      return null;
     }
   }
 }

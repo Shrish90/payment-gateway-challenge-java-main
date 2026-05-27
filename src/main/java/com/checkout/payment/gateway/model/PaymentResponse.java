@@ -21,12 +21,27 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class PaymentResponse {
+  /** The unique identifier for the payment transaction. */
   private UUID id;
+
+  /** The status of the payment transaction */
   private PaymentStatus status;
-  private int cardNumberLastFour;
-  private int expiryMonth;
-  private int expiryYear;
+
+  /** The last four digits of the card number used for the payment. */
+  private Integer cardNumberLastFour;
+
+  /** The month of the card's expiry date. */
+  private Integer expiryMonth;
+
+  /** The year of the card's expiry date. */
+  private Integer expiryYear;
+
+  /** The currency in which the payment was made. */
   private String currency;
-  private int amount;
+
+  /** The amount of the payment transaction. */
+  private Integer amount;
+
+  /** A list of any violations that occurred during the payment processing. */
   private List<String> violations;
 }

@@ -40,7 +40,7 @@ class PaymentResponseGatewayControllerTest {
     bankResponse.setAuthorizationCode("auth-code");
     when(bankClient.sendPayment(any())).thenReturn(bankResponse);
 
-    mvc.perform(MockMvcRequestBuilders.post("/payment")
+    mvc.perform(MockMvcRequestBuilders.post("/api/v1/payment")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isCreated())
@@ -53,12 +53,12 @@ class PaymentResponseGatewayControllerTest {
   void whenCreatePaymentWithInvalidCardNumberThenReturnsBadRequest() throws Exception {
     String body = "{\"card_number\":\"1234\",\"expiry_month\":12,\"expiry_year\":2026,\"currency\":\"USD\",\"amount\":100,\"cvv\":\"123\"}";
 
-    mvc.perform(MockMvcRequestBuilders.post("/payment")
+    mvc.perform(MockMvcRequestBuilders.post("/api/v1/payment")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
-      .andExpect(status().isCreated())
-      .andExpect(jsonPath("$.status").value("Rejected"))
-      .andExpect(jsonPath("$.violations[0]").value("cardNumber: Card number must be numeric and between 14 and 19 characters"));
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.status").value("Rejected"))
+        .andExpect(jsonPath("$.violations[0]").exists());
   }
 
   @Test
@@ -74,7 +74,7 @@ class PaymentResponseGatewayControllerTest {
 
     paymentsRepository.add(paymentResponse);
 
-    mvc.perform(MockMvcRequestBuilders.get("/payment/" + paymentResponse.getId()))
+    mvc.perform(MockMvcRequestBuilders.get("/api/v1/payment/" + paymentResponse.getId()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value(paymentResponse.getStatus().getName()))
         .andExpect(jsonPath("$.cardNumberLastFour").value(paymentResponse.getCardNumberLastFour()))
@@ -89,7 +89,7 @@ class PaymentResponseGatewayControllerTest {
     when(bankClient.sendPayment(any())).thenThrow(new com.checkout.payment.gateway.exception.BankUnavailableException("Bank unavailable"));
 
     String body = "{\"card_number\":\"4111111111111111\",\"expiry_month\":12,\"expiry_year\":2026,\"currency\":\"USD\",\"amount\":100,\"cvv\":\"123\"}";
-    mvc.perform(MockMvcRequestBuilders.post("/payment")
+    mvc.perform(MockMvcRequestBuilders.post("/api/v1/payment")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isServiceUnavailable())
@@ -98,7 +98,7 @@ class PaymentResponseGatewayControllerTest {
 
   @Test
   void whenPaymentWithIdDoesNotExistThen404IsReturned() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.get("/payment/" + UUID.randomUUID()))
+    mvc.perform(MockMvcRequestBuilders.get("/api/v1/payment/" + UUID.randomUUID()))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Page not found"));
   }

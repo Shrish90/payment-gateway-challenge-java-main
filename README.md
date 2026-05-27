@@ -1,50 +1,42 @@
-# Instructions for candidates
+# Payment Gateway — Java
 
-This is the Java version of the Payment Gateway challenge. If you haven't already read this [README.md](https://github.com/cko-recruitment/) on the details of this exercise, please do so now.
+This repository is a Spring Boot implementation of a Payment Gateway interview challenge.
 
-## Requirements
-- JDK 17
-- Docker
+Summary of the structural decision
+---------------------------------
+The codebase follows a Hexagonal (Ports & Adapters) architecture to separate the core application logic from delivery and infrastructure concerns. This improves testability and makes it easier to swap adapters (e.g., replace the in-memory store with JPA or swap the bank simulator for a real integration).
 
-## Template structure
+Hexagonal structure (intended)
+-----------------------------
+The canonical layout used by this project is:
 
-src/ - A skeleton SpringBoot Application
+├── domain (Entities, Value Objects)
+├── application
+│   ├── ports
+│   │   ├── in      (Input / Driving interfaces — controllers -> application)
+│   │   └── out     (Output / Driven interfaces — repositories, external API clients)
+│   └── services    (Use case implementations)
+├── infrastructure
+│   ├── adapters
+   │   ├── in      (Controllers, MQ listeners)
+   │   └── out     (Persistence adapters, external API clients)
+│   └── configuration (Spring configuration / DI)
 
-test/ - Some simple JUnit tests
+Mapping to current code
+-----------------------
+- `domain`: `src/main/java/com/checkout/payment/gateway/model` — DTOs and validation rules (`PaymentRequest`, `PaymentResponse`).
+- `application.ports.out`: `src/main/java/com/checkout/payment/gateway/ports` — `BankClient` and `PaymentRepository` interfaces.
+- `infrastructure.adapters.out`: `src/main/java/com/checkout/payment/gateway/adapters/bank` and `.../adapters` — `HttpBankClient`, repository implementation.
+- `infrastructure.adapters.in`: `src/main/java/com/checkout/payment/gateway/controller` — `PaymentGatewayController`.
+- `infrastructure.configuration`: `src/main/java/com/checkout/payment/gateway/configuration` — DI and beans (`RestTemplate`).
 
-imposters/ - contains the bank simulator configuration. Don't change this
+API
+---
+- `POST /payment` — submit a payment. Returns `201 Created` with payment details including `status` (Authorized, Declined, Rejected). When `Rejected`, the response includes `violations` with validation messages.
+- `GET /payment/{id}` — fetch stored payment response by id.
 
-.editorconfig - don't change this. It ensures a consistent set of rules for submissions when reformatting code
-
-docker-compose.yml - configures the bank simulator
-
-
-## API Documentation
-For documentation openAPI is included, and it can be found under the following url: **http://localhost:8090/swagger-ui/index.html**
-
-**Feel free to change the structure of the solution, use a different library etc.**
-
-## Implementation Summary
-This solution uses a lightweight hexagonal-style structure to separate:
-- `controller` for HTTP endpoints
-- `service` for business orchestration
-- `domain` for validation and request rules
-- `ports` for external contracts (paymentResponse repository, bank client)
-- `adapters` for the in-memory repository and bank simulator HTTP client
-
-Payment requests are validated before calling the bank simulator. Valid requests are persisted in the provided in-memory repository, and retrieval is supported by paymentResponse ID.
-
-## Supported Endpoints
-- `POST /paymentResponse`
-  - Accepts a paymentResponse request with `card_number`, `expiry_month`, `expiry_year`, `currency`, `amount`, and `cvv`
-  - Returns `201 Created` with paymentResponse details including `id`, `status`, `cardNumberLastFour`, `expiryMonth`, `expiryYear`, `currency`, and `amount`
-  - Returns `400 Bad Request` for validation failure
-  - Returns `503 Service Unavailable` if the bank simulator is unreachable or returns server errors
-- `GET /paymentResponse/{id}`
-  - Returns `200 OK` with stored paymentResponse details
-  - Returns `404 Not Found` with `{"message":"Page not found"}` for missing payments
-
-## How to run
+Running locally
+---------------
 1. Start the bank simulator:
 ```bash
 docker-compose up
@@ -53,19 +45,20 @@ docker-compose up
 ```bash
 ./gradlew bootRun
 ```
-3. Open API docs at:
-```bash
+3. Open API docs:
+```text
 http://localhost:8090/swagger-ui/index.html
 ```
 
-## How to test
+Testing
+-------
 Run the Gradle test suite:
 ```bash
 ./gradlew test --no-daemon
 ```
 
-## Assumptions and Notes
-- The repository remains in-memory as allowed by the exercise.
-- The bank simulator request body is mapped to the provided `card_number`, `expiry_date`, `currency`, `amount`, and `cvv` fields.
-- Validation covers card number length/format, expiry month/year, future expiry date, currency whitelist (`USD`, `EUR`, `GBP`), positive minor-unit amount, and 3-4 digit CVV.
-- If the bank simulator returns HTTP 5xx, the client retries once before returning `503 Service Unavailable`.
+Notes & next steps
+------------------
+- The in-memory `PaymentsRepository` is used for simplicity in the exercise. Migrating to JPA is straightforward by implementing a JPA adapter that implements the `PaymentRepository` port.
+- The bank endpoint is configurable via `src/main/resources/application.properties` (`bank.endpoint`).
+- If you want me to physically move Java classes into the exact package layout above (update package declarations and imports), I can do that in a follow-up change.
